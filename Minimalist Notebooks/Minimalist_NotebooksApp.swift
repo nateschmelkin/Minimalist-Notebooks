@@ -11,7 +11,11 @@ import SwiftUI
 struct Minimalist_NotebooksApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            NotebooksGridView()
         }
     }
 }
+
+#Preview(body: {
+    NotebooksGridView()
+})
