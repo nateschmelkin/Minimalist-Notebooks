@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-struct NotebooksGridView: View {
-    @StateObject private var viewModel = NotebooksViewModel()
+struct CoverGridView: View {
+    @StateObject private var notebooksGridViewModel = CoverGridVM()
     @State private var selectedNotebook: Notebook? // Tracks selected notebook
     @State private var selectedPageID: UUID? // Track selected page ID
     
@@ -30,7 +30,7 @@ struct NotebooksGridView: View {
                             
                             // Show all notebooks
                             
-                            ForEach(viewModel.notebooks) { notebook in
+                            ForEach(notebooksGridViewModel.notebooks) { notebook in
                                 NotebookCoverView(title: notebook.title, onOpen: {
                                     selectedNotebook = notebook
                                     selectedPageID = notebook.pages.first?.id
@@ -39,7 +39,7 @@ struct NotebooksGridView: View {
                             
                             // Make button in last slot
                             Button(action: {
-                                viewModel.addNotebook()
+                                notebooksGridViewModel.createNewNotebook()
                             }) {
                                 VStack {
                                     Image(systemName: "plus")
@@ -60,10 +60,13 @@ struct NotebooksGridView: View {
                         .padding()
                     }
                 }
+                .sheet(isPresented: $notebooksGridViewModel.isShowingCreateNewNotebookView, content: {
+                    CreateNotebookView(notebooksGridViewModel: notebooksGridViewModel)
+                })
             } else {
                 // Show the notebook if selected
                 if let pageID = selectedPageID, let page = selectedNotebook?.pages.first(where: { $0.id == pageID }) {
-                    NotebookPageView(notebookTitle: selectedNotebook?.title ?? "Untitled", pageID: page.id, onClose: {
+                    OpenedNotebookView(notebookTitle: selectedNotebook?.title ?? "Untitled", pageID: page.id, onClose: {
                         selectedNotebook = nil
                         selectedPageID = nil
                     })

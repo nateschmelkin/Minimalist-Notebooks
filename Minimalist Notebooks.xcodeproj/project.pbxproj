@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		5EE0EB662DA0112C007749F7 /* Zoomable in Frameworks */ = {isa = PBXBuildFile; productRef = 5EE0EB652DA0112C007749F7 /* Zoomable */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		5EE0EA2D2D9B3AE8007749F7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5EE0EB662DA0112C007749F7 /* Zoomable in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = "Minimalist Notebooks";
 			packageProductDependencies = (
+				5EE0EB652DA0112C007749F7 /* Zoomable */,
 			);
 			productName = "Minimalist Notebooks";
 			productReference = 5EE0EA1F2D9B3AE6007749F7 /* Minimalist Notebooks.app */;
@@ -195,6 +201,9 @@
 			);
 			mainGroup = 5EE0EA162D9B3AE6007749F7;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				5EE0EB642DA010BE007749F7 /* XCRemoteSwiftPackageReference "Zoomable" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5EE0EA202D9B3AE6007749F7 /* Products */;
 			projectDirPath = "";
@@ -552,6 +561,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		5EE0EB642DA010BE007749F7 /* XCRemoteSwiftPackageReference "Zoomable" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ryohey/Zoomable.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		5EE0EB652DA0112C007749F7 /* Zoomable */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5EE0EB642DA010BE007749F7 /* XCRemoteSwiftPackageReference "Zoomable" */;
+			productName = Zoomable;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5EE0EA172D9B3AE6007749F7 /* Project object */;
 }

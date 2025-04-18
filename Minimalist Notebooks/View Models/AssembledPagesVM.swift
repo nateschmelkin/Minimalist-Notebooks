@@ -1,19 +1,18 @@
 import SwiftUI
 import PencilKit
 
-class NotebookPageViewModel: ObservableObject {
+class AssembledPagesVM: ObservableObject {
+    
+    //Drawing
     @Published var drawing = PKDrawing() {
         didSet {
             print("📌 ViewModel updated, new stroke count: \(drawing.strokes.count)")
         }
     }
     
-    @Published var selectedTool: PKTool = PKInkingTool(.pen, color: UIColor(.black), width: 4)
-    
     @Published var zoomScale: CGFloat = 1.0
-    @Published var offset: CGSize = .zero
-    
-    var lastOffset: CGSize = .zero  // Tracks last position after drag ends
+    @Published var zoomAnchor: UnitPoint = .center
+    @Published var pageFrameSize: CGSize = .zero
     
     private let fileURL: URL
     
@@ -24,15 +23,6 @@ class NotebookPageViewModel: ObservableObject {
         print("🆕 NotebookPageViewModel initialized for page \(pageID)")
         
         loadDrawing()
-    }
-
-    // TOOL SELECT
-    func selectPen() {
-        selectedTool = PKInkingTool(.pen, color: UIColor(.black), width: 4)
-    }
-    
-    func selectEraser() {
-        selectedTool = PKEraserTool(.bitmap, width: 100)
     }
     
     //RESCALE DRAWING && ZOOMING
@@ -47,21 +37,6 @@ class NotebookPageViewModel: ObservableObject {
 
         // Apply the transformation to the entire drawing
         self.drawing = self.drawing.transformed(using: transform)
-    }
-    
-    func clampOffset(_ proposedOffset: CGSize, for canvasSize: CGSize, in viewSize: CGSize) -> CGSize {
-        guard zoomScale > 1.0 else { return .zero } // No panning if fully zoomed out
-
-        let scaledWidth = canvasSize.width * zoomScale
-        let scaledHeight = canvasSize.height * zoomScale
-
-        let maxOffsetX = (scaledWidth - canvasSize.width) / 2
-        let maxOffsetY = (scaledHeight - canvasSize.height) / 2
-
-        let clampedX = max(-maxOffsetX, min(proposedOffset.width, maxOffsetX))
-        let clampedY = max(-maxOffsetY, min(proposedOffset.height, maxOffsetY))
-
-        return CGSize(width: clampedX, height: clampedY)
     }
 
     
