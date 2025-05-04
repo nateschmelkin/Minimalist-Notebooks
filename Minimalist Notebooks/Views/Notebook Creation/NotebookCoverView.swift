@@ -1,10 +1,3 @@
-//
-//  NotebookView.swift
-//  Minimalist Notebooks
-//
-//  Created by Nate Schmelkin on 3/31/25.
-//
-
 import SwiftUI
 
 struct NotebookCoverView: View {

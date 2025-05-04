@@ -15,7 +15,7 @@ struct ToolbarView: View {
     
     var body: some View {
         VStack {
-            HStack {
+            HStack(spacing: 16) {
                 Button(action: {
                     onClose()
                 }) {
@@ -23,14 +23,13 @@ struct ToolbarView: View {
                         .font(.title)
                         .foregroundColor(.blue)
                 }
-                .padding()
                 
                 Text(notebookTitle)
-                    .font(.largeTitle)
-                    .padding()
+                    .font(.title)
                 
                 Spacer()
             }
+            .padding(4)
             HStack {
                 ToolView(viewModel: ToolVM(tool: Tool(name: toolbarViewModel.firstPenSettings.name,
                                                              onClick: {toolbarViewModel.setActivePenTool(settings: toolbarViewModel.firstPenSettings)},
@@ -59,6 +58,7 @@ struct ToolbarView: View {
                 
                 Spacer()
             }
+            .padding(4)
         }
         .background(Color.gray)
         .overlay(

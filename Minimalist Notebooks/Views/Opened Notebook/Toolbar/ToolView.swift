@@ -31,7 +31,6 @@ struct ToolView: View {
                     viewModel.tool.onLongPress()
                 }
         )
-        .padding(4)
     }
 }
 
