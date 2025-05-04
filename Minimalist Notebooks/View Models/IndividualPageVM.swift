@@ -1,7 +1,10 @@
-//
-//  IndividualPageVM.swift
-//  Minimalist Notebooks
-//
-//  Created by Nate Schmelkin on 4/17/25.
-//
+import SwiftUI
+import PencilKit
 
+class IndividualPageVM: ObservableObject {
+    @Published var page: PageModel
+    
+    init(page: PageModel) {
+        self.page = page
+    }
+}

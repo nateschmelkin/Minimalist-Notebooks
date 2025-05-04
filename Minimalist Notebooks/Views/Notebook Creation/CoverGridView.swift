@@ -6,11 +6,10 @@
 //
 
 import SwiftUI
+import PencilKit
 
 struct CoverGridView: View {
     @StateObject private var notebooksGridViewModel = CoverGridVM()
-    @State private var selectedNotebook: Notebook? // Tracks selected notebook
-    @State private var selectedPageID: UUID? // Track selected page ID
     
     let columns = [
         GridItem(.adaptive(minimum: 180), spacing: 40)
@@ -19,7 +18,7 @@ struct CoverGridView: View {
     var body: some View {
         ZStack {
             // Show grid if no notebook is selected
-            if selectedNotebook == nil {
+            if notebooksGridViewModel.selectedNotebook == nil {
                 ScrollView {
                     VStack {
                         Text("Notebooks")
@@ -32,8 +31,7 @@ struct CoverGridView: View {
                             
                             ForEach(notebooksGridViewModel.notebooks) { notebook in
                                 NotebookCoverView(title: notebook.title, onOpen: {
-                                    selectedNotebook = notebook
-                                    selectedPageID = notebook.pages.first?.id
+                                    notebooksGridViewModel.selectedNotebook = notebook
                                 })
                             }
                             
@@ -62,20 +60,20 @@ struct CoverGridView: View {
                 }
                 .sheet(isPresented: $notebooksGridViewModel.isShowingCreateNewNotebookView, content: {
                     CreateNotebookView(notebooksGridViewModel: notebooksGridViewModel)
+                        .onDisappear {
+                            notebooksGridViewModel.selectedNotebook = notebooksGridViewModel.notebooks.last
+                        }
                 })
             } else {
-                // Show the notebook if selected
-                if let pageID = selectedPageID, let page = selectedNotebook?.pages.first(where: { $0.id == pageID }) {
-                    OpenedNotebookView(notebookTitle: selectedNotebook?.title ?? "Untitled", pageID: page.id, onClose: {
-                        selectedNotebook = nil
-                        selectedPageID = nil
-                    })
-                    .id(pageID)
-                } else {
-                    // Handle case where no page is selected or available
-                    Text("No page available")
-                }
+                OpenedNotebookView(
+                    notebookVM: NotebookVM(notebook: notebooksGridViewModel.selectedNotebook!), 
+                    onClose: {
+                        notebooksGridViewModel.selectedNotebook = nil
+                    }
+                )
             }
         }
     }
 }
+
+//Notebook(title: "Multiple Pages", pages: [PageModel(pageNumberIndex: 0, drawing: PKDrawing()), PageModel(pageNumberIndex: 0, drawing: PKDrawing())])
