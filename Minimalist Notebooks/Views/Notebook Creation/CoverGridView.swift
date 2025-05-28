@@ -9,7 +9,18 @@ import SwiftUI
 import PencilKit
 
 struct CoverGridView: View {
-    @StateObject private var notebooksGridViewModel = CoverGridVM()
+    @StateObject var notebookManager: NotebookManager
+    
+    @State var selectedNotebook: Notebook?
+    
+    @State private var notebookToDelete: Notebook?
+    @State private var showingDeleteConfirmation = false
+
+    init() {
+        _notebookManager = StateObject(wrappedValue: NotebookManager(
+            context: PersistenceController.shared.container.viewContext
+        ))
+    }
     
     let columns = [
         GridItem(.adaptive(minimum: 180), spacing: 40)
@@ -18,62 +29,77 @@ struct CoverGridView: View {
     var body: some View {
         ZStack {
             // Show grid if no notebook is selected
-            if notebooksGridViewModel.selectedNotebook == nil {
+            if selectedNotebook == nil {
                 ScrollView {
                     VStack {
                         Text("Notebooks")
                             .font(.largeTitle)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Theme.textPrimary)
                         
                         LazyVGrid(columns: columns, spacing: 40) {
                             
                             // Show all notebooks
                             
-                            ForEach(notebooksGridViewModel.notebooks) { notebook in
-                                NotebookCoverView(title: notebook.title, onOpen: {
-                                    notebooksGridViewModel.selectedNotebook = notebook
-                                })
+                            ForEach(notebookManager.notebooks, id: \.id) { notebook in
+                                NotebookCoverView(
+                                    notebook: notebook,
+                                    onOpen: {
+                                        selectedNotebook = notebook
+                                    },
+                                    onDelete: {
+                                        notebookToDelete = notebook
+                                        notebookManager.deleteNotebook(notebook)
+                                        if selectedNotebook == notebook {
+                                            selectedNotebook = nil
+                                        }
+                                        notebookToDelete = nil
+                                    }
+                                )
                             }
                             
                             // Make button in last slot
                             Button(action: {
-                                notebooksGridViewModel.createNewNotebook()
+                                notebookManager.addNotebook()
                             }) {
                                 VStack {
                                     Image(systemName: "plus")
                                         .resizable()
                                         .scaledToFit()
                                         .frame(width: 40, height: 40)
-                                        .foregroundStyle(.blue)
+                                        .foregroundStyle(Theme.primary)
                                     
                                     Text("New Notebook")
-                                        .font(.caption)
-                                        .foregroundStyle(.blue)
+                                        .font(.headline)
+                                        .foregroundStyle(Theme.textPrimary)
                                 }
-                                .frame(width: 180, height: 300)
-                                .background(Color.gray.opacity(0.2))
+                                .frame(width: 180, height: 240)
+                                .background(Theme.secondary)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
                         }
                         .padding()
                     }
                 }
-                .sheet(isPresented: $notebooksGridViewModel.isShowingCreateNewNotebookView, content: {
-                    CreateNotebookView(notebooksGridViewModel: notebooksGridViewModel)
+                .sheet(isPresented: $notebookManager.isShowingCreateNewNotebookView, content: {
+                    CreateNotebookView(notebookManager: notebookManager)
                         .onDisappear {
-                            notebooksGridViewModel.selectedNotebook = notebooksGridViewModel.notebooks.last
+                            selectedNotebook = notebookManager.notebooks.last
                         }
                 })
             } else {
                 OpenedNotebookView(
-                    notebookVM: NotebookVM(notebook: notebooksGridViewModel.selectedNotebook!), 
+                    notebook: selectedNotebook!,
+                    notebookManager: notebookManager,
                     onClose: {
-                        notebooksGridViewModel.selectedNotebook = nil
+                        selectedNotebook = nil
                     }
                 )
             }
         }
+        .background(Theme.appBackground)
     }
 }
 
-//Notebook(title: "Multiple Pages", pages: [PageModel(pageNumberIndex: 0, drawing: PKDrawing()), PageModel(pageNumberIndex: 0, drawing: PKDrawing())])
+#Preview {
+    CoverGridView()
+}

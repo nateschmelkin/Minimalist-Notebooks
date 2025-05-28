@@ -1,21 +1,28 @@
 import SwiftUI
 
 struct NotebookCoverView: View {
-    let title: String
+    let notebook: Notebook
     let onOpen: () -> Void // Closure to handle opening the notebook
+    let onDelete: () -> Void
 
     var body: some View {
-            VStack {
-                Text(title)
-                    .font(.headline)
-                    .foregroundColor(.black)
+        ZStack(alignment: .topTrailing) {
+            Button(action: onOpen) {
+                VStack {
+                    Text(notebook.title!)
+                        .font(.headline)
+                        .foregroundStyle(Theme.textPrimary)
+                }
+                .padding()
+                .frame(width: 180, height: 240)
+                .background(Theme.highlight) // TODO CHANGE FOR A STORED NOTEBOOK COLOR
+                .clipShape(RoundedRectangle(cornerRadius: 12))
             }
-            .frame(width: 180, height: 300)
-            .background(Color.yellow.opacity(0.5))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-        
-            .onTapGesture {
-                onOpen() // Trigger the opening of the notebook
+            .contextMenu {
+                Button("Delete", role: .destructive, action: onDelete)
+                // Add more items here later:
+                // Button("Rename", action: ...)
             }
+        }
     }
 }

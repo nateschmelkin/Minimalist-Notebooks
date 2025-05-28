@@ -1,21 +1,15 @@
-//
-//  Minimalist_NotebooksApp.swift
-//  Minimalist Notebooks
-//
-//  Created by Nate Schmelkin on 3/31/25.
-//
-
 import SwiftUI
+import Foundation
 
 @main
 struct Minimalist_NotebooksApp: App {
+    let persistenceController = PersistenceController.shared
+    
+
     var body: some Scene {
         WindowGroup {
             CoverGridView()
+                .environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
     }
 }
-
-#Preview(body: {
-    CoverGridView()
-})

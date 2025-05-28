@@ -2,15 +2,15 @@ import SwiftUI
 import PencilKit
 
 struct PageCanvasView: UIViewRepresentable {
-    @StateObject var pageVM: IndividualPageVM
+    let pageModel: NotebookPage
     @Binding var selectedTool: PKTool
     @Binding var zoomScale: CGFloat
     
-    var dotsHorizontally: Int = 20
+    var paperType: PaperType = .blank
   
     func makeUIView(context: Context) -> PKCanvasView {
         let canvas = PKCanvasView()
-        canvas.drawing = pageVM.page.drawing
+        canvas.drawing = pageModel.page.drawing
         canvas.drawingPolicy = .pencilOnly
         
         canvas.minimumZoomScale = 1
@@ -25,7 +25,7 @@ struct PageCanvasView: UIViewRepresentable {
              canvas.removeGestureRecognizer(pinch)
           }
         
-        canvas.backgroundColor = UIColor(red: 1.0, green: 1.0, blue: 0.89, alpha: 1.0)
+        canvas.backgroundColor = UIColor.clear
         
         canvas.overrideUserInterfaceStyle = .light
         canvas.becomeFirstResponder()
@@ -34,13 +34,12 @@ struct PageCanvasView: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: PKCanvasView, context: Context) {
-        if uiView.drawing.dataRepresentation() != pageVM.page.drawing.dataRepresentation(){
-          uiView.drawing = pageVM.page.drawing
+        if uiView.drawing.dataRepresentation() != pageModel.drawing{
+            uiView.drawing = pageModel.page.drawing
         }
         
         uiView.tool = selectedTool
-        
-        uiView.setZoomScale(zoomScale, animated: true)
+        uiView.setZoomScale(zoomScale, animated: false)
     }
     
     func makeCoordinator() -> Coordinator {
@@ -52,7 +51,7 @@ struct PageCanvasView: UIViewRepresentable {
         init(_ parent: PageCanvasView) { self.parent = parent }
         
         func canvasViewDrawingDidChange(_ canvasView: PKCanvasView) {
-            DispatchQueue.main.async { self.parent.pageVM.page.drawing = canvasView.drawing }
+            DispatchQueue.main.async { self.parent.pageModel.drawing = canvasView.drawing.dataRepresentation() }
         }
     }
 }

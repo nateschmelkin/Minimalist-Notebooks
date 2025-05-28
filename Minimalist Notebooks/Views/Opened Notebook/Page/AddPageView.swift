@@ -7,7 +7,7 @@ struct AddPageView: View {
         Button(action: onPress) {
             Image(systemName: "plus")
                 .font(.title)
-                .foregroundColor(.blue)
+                .foregroundStyle(Theme.primary)
         }
     }
 }

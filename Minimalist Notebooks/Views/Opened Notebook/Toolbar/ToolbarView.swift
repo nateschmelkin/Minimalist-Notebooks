@@ -1,10 +1,3 @@
-//
-//  Toolbar.swift
-//  Minimalist Notebooks
-//
-//  Created by Nate Schmelkin on 4/11/25.
-//
-
 import SwiftUI
 
 struct ToolbarView: View {
@@ -13,54 +6,25 @@ struct ToolbarView: View {
     
     @ObservedObject var toolbarViewModel: ToolbarVM
     
+    @State private var showingColorPicker = false
+    @State private var showingWidthSlider = false
+    
+    private var tools: [ToolConfig] {
+        ToolbarToolFactory.makeConfigs(
+            from: toolbarViewModel
+        )
+    }
+    
     var body: some View {
-        VStack {
-            HStack(spacing: 16) {
-                Button(action: {
-                    onClose()
-                }) {
-                    Image(systemName: "chevron.left")
-                        .font(.title)
-                        .foregroundColor(.blue)
-                }
-                
-                Text(notebookTitle)
-                    .font(.title)
-                
-                Spacer()
-            }
-            .padding(4)
-            HStack {
-                ToolView(viewModel: ToolVM(tool: Tool(name: toolbarViewModel.firstPenSettings.name,
-                                                             onClick: {toolbarViewModel.setActivePenTool(settings: toolbarViewModel.firstPenSettings)},
-                                                             onLongPress: {
-                    toolbarViewModel.setActivePenTool(settings: toolbarViewModel.firstPenSettings)
-                    toolbarViewModel.editActivePenSettings()},
-                                                             icon: Image(systemName: "pencil.tip"),
-                                                             tint: Color(toolbarViewModel.firstPenSettings.color),
-                                                             isSelected: toolbarViewModel.activeToolName == toolbarViewModel.firstPenSettings.name)))
-                
-                ToolView(viewModel: ToolVM(tool: Tool(name: toolbarViewModel.secondPenSettings.name,
-                                                             onClick: {toolbarViewModel.setActivePenTool(settings: toolbarViewModel.secondPenSettings)},
-                                                             onLongPress: {
-                    toolbarViewModel.setActivePenTool(settings: toolbarViewModel.secondPenSettings)
-                    toolbarViewModel.editActivePenSettings()},
-                                                             icon: Image(systemName: "pencil.tip"),
-                                                             tint: Color(toolbarViewModel.secondPenSettings.color),
-                                                             isSelected: toolbarViewModel.activeToolName == toolbarViewModel.secondPenSettings.name)))
-                
-                ToolView(viewModel: ToolVM(tool: Tool(name: toolbarViewModel.eraserSettings.name,
-                                                             onClick: toolbarViewModel.setActiveEraserTool,
-                                                             onLongPress: {print("Eraser Long Pressed")},
-                                                             icon: Image(systemName: "eraser"),
-                                                             tint: .black,
-                                                             isSelected: toolbarViewModel.activeToolName == toolbarViewModel.eraserSettings.name)))
-                
-                Spacer()
-            }
-            .padding(4)
+        VStack(spacing: 0) {
+            topBar
+            bottomToolbar
+            Divider()
+                .foregroundStyle(Theme.divider)
         }
-        .background(Color.gray)
+        .onAppear() {
+            toolbarViewModel.setActivePen(pen: toolbarViewModel.penPresets[0])
+        }
         .overlay(
             GeometryReader { toolbarGeo in
                 // Capture the toolbar height inside this reader
@@ -68,7 +32,55 @@ struct ToolbarView: View {
                     .onAppear {
                         toolbarViewModel.toolbarHeight = toolbarGeo.size.height
                     }
-                    .frame(width: 0, height: 0) // Don't display this view, just use it for size calculation
-            })
+                    .frame(width: 0, height: 0)
+            }
+        )
+    }
+    
+    private var topBar: some View {
+        HStack {
+            Button(action: onClose) {
+                Image(systemName: "chevron.left")
+                    .font(.title)
+                    .foregroundStyle(Theme.textPrimary)
+            }
+            
+            Text(notebookTitle)
+                .font(.title)
+                .foregroundStyle(Theme.textPrimary)
+            
+            Spacer()
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .background(Theme.topBarBackground)
+    }
+    
+    private var bottomToolbar: some View {
+        HStack {
+            ForEach(tools) { config in
+                if config.type == .spacer {
+                    Spacer(minLength: 12)
+                } else {
+                    ToolbarToolButton(
+                        config: config,
+                        onTap: {
+                            ToolActionRouter.handleTap(config.type, vm: toolbarViewModel, showColorPicker: &showingColorPicker, showWidthSlider: &showingWidthSlider)
+                        },
+                        onDelete: {
+                            ToolActionRouter.handleDelete(config.type, vm: toolbarViewModel)
+                        }
+                    )
+                }
+            }
+        }
+        .padding(4)
+        .background(Theme.bottomBarBackground)
+        .popover(isPresented: $showingColorPicker) {
+            PenColorPicker(toolbarVM: toolbarViewModel)
+        }
+        .popover(isPresented: $showingWidthSlider) {
+            PenWidthPicker(toolbarVM: toolbarViewModel)
+        }
     }
 }

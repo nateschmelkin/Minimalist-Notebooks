@@ -1,37 +1,57 @@
 import SwiftUI
+import CoreData
 
 struct CreateNotebookView : View {
-    @ObservedObject var notebooksGridViewModel: CoverGridVM
+    @ObservedObject var notebookManager: NotebookManager
     @StateObject private var createNotebookViewModel = CreateNotebookVM()
     
     @FocusState private var nameFieldIsFocused: Bool
     
-    var body: some View {
+    @State private var selectedPaperType: PaperType = .blank
+    
+    var body: some View { // TODO ADD IN PAPER TYPES SINGLE SELECTOR
         VStack {
-            TextField("Notebook name", text: $createNotebookViewModel.notebookTitle)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .focused($nameFieldIsFocused)
-                .padding()
+                List{
+                TextField("Notebook name", text: $createNotebookViewModel.notebookTitle)
+                    .focused($nameFieldIsFocused)
+                
+                Picker("Paper Type", selection: $selectedPaperType) {
+                    Text("Blank").tag(PaperType.blank)
+                    Text("Dotted").tag(PaperType.dots)
+                    Text("Lined").tag(PaperType.lines)
+                }
+                HStack {
+                    Spacer()
+                    Group {
+                        switch selectedPaperType {
+                        case .blank:
+                            Theme.pageBackground
+                        case .dots:
+                            DotGridView(zoomScale: 1)
+                        case .lines:
+                            LinedPaperView(zoomScale: 1)
+                        }
+                    }
+                    .frame(width: 180, height: 240)
+                }
+            }
             
             Button(action: {
-                notebooksGridViewModel.addNotebook(notebookTitle: createNotebookViewModel.notebookTitle)
+                notebookManager.createNotebook(title: createNotebookViewModel.notebookTitle, paperType: selectedPaperType)
             }) {
                 Text("Create Notebook")
                     .font(.headline)
                     .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
+                    .background(Theme.primary)
+                    .foregroundStyle(Theme.textPrimary)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
-            .popover(isPresented: $notebooksGridViewModel.showNoNotebookNameWarning) {
+            .popover(isPresented: $notebookManager.showNoNotebookNameWarning) {
                 Text("Notebook name cannot be empty")
+                    .foregroundStyle(Theme.error)
+                    .padding()
             }
             .padding()
-        }
-        .onAppear() {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1){
-                nameFieldIsFocused = true
-            }
         }
     }
 }
